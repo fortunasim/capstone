@@ -69,6 +69,8 @@ class WaypointUpdater(object):
 
         if val > 0:
             closest_idx = (closest_idx + 1) % len(self.waypoints_2d)
+
+        rospy.logwarn("closest_idx={}".format(closest_idx))
         return closest_idx
 
     def decelerate_waypoints(self, waypoints, closest_idx):
@@ -85,6 +87,7 @@ class WaypointUpdater(object):
 
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
+
         return temp
 
     def publish_waypoints(self):
@@ -110,17 +113,17 @@ class WaypointUpdater(object):
 
     def waypoints_cb(self, waypoints):
         # TODO: Implement
-        rospy.loginfo('waypoints_cb')
-        rospy.loginfo('msg: {}'.format(waypoints))
+        rospy.logwarn("Waypoints={}".format(Waypoints))
         
-        self.base_waypoints = waypoints
+        self.base_lane = waypoints
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
-        self.stopline_wp_idx = msg.data
+        if self.stopline_wp_idx != msg.data:
+            self.stopline_wp_idx = msg.data
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
